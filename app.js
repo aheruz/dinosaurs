@@ -1,32 +1,106 @@
+// Create Dino Constructor
+class Dino {
+    constructor(species, weight, height, diet, fact) {
+        this.species = species;
+        this.weight = weight;
+        this.height = height;
+        this.diet = diet;
+        this.fact = fact;
+    }
+}
 
-    // Create Dino Constructor
-
-
-    // Create Dino Objects
-
-
-    // Create Human Object
-
-    // Use IIFE to get human data from form
-
-
-    // Create Dino Compare Method 1
-    // NOTE: Weight in JSON file is in lbs, height in inches. 
-
+// Fetch Dino Data from dino.json
+let dinoData; // Declare dinoData in a higher scope
+fetch('dino.json')
+    .then(response => response.json())
+    .then(data => {
+        dinoData = data.Dinos.map(dino => new Dino(dino.species, dino.weight, dino.height, dino.diet, dino.fact));
+    })
+    .catch(error => console.error('Error fetching dino data:', error));
     
-    // Create Dino Compare Method 2
-    // NOTE: Weight in JSON file is in lbs, height in inches.
+// Create Human Object
+let human;
 
-    
-    // Create Dino Compare Method 3
-    // NOTE: Weight in JSON file is in lbs, height in inches.
+// Use IIFE to get human data from form
+(function() {
+    const form = document.getElementById('dino-compare');
+    const btn = document.getElementById('btn');
 
+    btn.addEventListener('click', function() {
+        const name = document.getElementById('name').value;
+        const feet = document.getElementById('feet').value;
+        const inches = document.getElementById('inches').value;
+        const weight = document.getElementById('weight').value;
+        const diet = document.getElementById('diet').value;
 
-    // Generate Tiles for each Dino in Array
-  
-        // Add tiles to DOM
+        human = {
+            name: name,
+            height: (parseInt(feet) * 12) + parseInt(inches),
+            weight: weight,
+            diet: diet
+        };
 
-    // Remove form from screen
+        form.style.display = 'none'; // Remove form from screen
+        generateTiles(); // Generate infographic
+    });
+})();
 
+// Create Dino Compare Method 1
+function compareWeight(dino) {
+    return dino.weight > human.weight ? `${dino.species} weighs more than you.` : `${dino.species} weighs less than you.`;
+}
 
-// On button click, prepare and display infographic
+// Create Dino Compare Method 2
+function compareHeight(dino) {
+    return dino.height > human.height ? `${dino.species} is taller than you.` : `${dino.species} is shorter than you.`;
+}
+
+// Create Dino Compare Method 3
+function compareDiet(dino) {
+    return dino.diet === human.diet ? `You and ${dino.species} have the same diet.` : `${dino.species} has a different diet than you.`;
+}
+
+// Generate Tiles for each Dino in Array
+function generateTiles() {
+    const grid = document.getElementById('grid');
+
+    // Create the human tile element
+    const humanTile = document.createElement('div');
+    humanTile.className = 'grid-item';
+    humanTile.innerHTML = `<h3>${human.name}</h3><img src="images/human.png" alt="Human">`;
+
+    // Create an array to hold the Dino tiles
+    const tiles = dinoData.map(dino => {
+        const dinoTile = document.createElement('div');
+        dinoTile.className = 'grid-item';
+        const randomFact = getRandomFact(dino);
+        dinoTile.innerHTML = `<h3>${dino.species}</h3><img src="images/${dino.species.toLowerCase()}.png" alt="${dino.species}"><p>${randomFact}</p>`;
+        return dinoTile;
+    });
+
+    // Insert the human tile in the middle of the Dino tiles
+    const midIndex = Math.floor(tiles.length / 2);
+    tiles.splice(midIndex, 0, humanTile);
+
+    // Append all tiles to the grid
+    tiles.forEach(tile => {
+        grid.appendChild(tile);
+    });
+}
+
+// Get a random fact for the dino
+function getRandomFact(dino) {
+    if (dino.species === "Pigeon") {
+       return dino.fact;
+    }
+
+    const facts = [
+        dino.fact,
+        compareWeight(dino),
+        compareHeight(dino),
+        compareDiet(dino),
+        `This dinosaur lived during the ${dino.when}.`,
+        `This dinosaur was found in ${dino.where}.`
+    ];
+    return facts[Math.floor(Math.random() * facts.length)];
+}
