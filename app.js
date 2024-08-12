@@ -1,11 +1,13 @@
 // Create Dino Constructor
 class Dino {
-    constructor(species, weight, height, diet, fact) {
-        this.species = species;
-        this.weight = weight;
-        this.height = height;
-        this.diet = diet;
-        this.fact = fact;
+    constructor(dino) {
+        this.species = dino.species;
+        this.weight = dino.weight;
+        this.height = dino.height;
+        this.diet = dino.diet;
+        this.fact = dino.fact;
+        this.when = dino.when;
+        this.where = dino.where;
     }
 }
 
@@ -14,7 +16,7 @@ let dinoData; // Declare dinoData in a higher scope
 fetch('dino.json')
     .then(response => response.json())
     .then(data => {
-        dinoData = data.Dinos.map(dino => new Dino(dino.species, dino.weight, dino.height, dino.diet, dino.fact));
+        dinoData = data.Dinos.map(dino => new Dino(dino));
     })
     .catch(error => console.error('Error fetching dino data:', error));
     
@@ -24,9 +26,8 @@ let human;
 // Use IIFE to get human data from form
 (function() {
     const form = document.getElementById('dino-compare');
-    const btn = document.getElementById('btn');
-
-    btn.addEventListener('click', function() {
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
         const name = document.getElementById('name').value;
         const feet = document.getElementById('feet').value;
         const inches = document.getElementById('inches').value;
@@ -99,8 +100,8 @@ function getRandomFact(dino) {
         compareWeight(dino),
         compareHeight(dino),
         compareDiet(dino),
-        `This dinosaur lived during the ${dino.when}.`,
-        `This dinosaur was found in ${dino.where}.`
-    ];
+        dino.when ? `This dinosaur lived during the ${dino.when}.` : '',
+        dino.where ? `This dinosaur was found in ${dino.where}.` : ''
+    ].filter(fact => fact);
     return facts[Math.floor(Math.random() * facts.length)];
 }
